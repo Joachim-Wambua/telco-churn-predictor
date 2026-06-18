@@ -1,7 +1,10 @@
+import logging
 import sys
 from pathlib import Path
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
@@ -110,7 +113,79 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+_CORR_THRESHOLD = 0.95
+_VARIANCE_THRESHOLD_RATIO = 0.01  # drop features whose variance < 1% of overall variance
+
+
+def select_features(
+    df: pd.DataFrame,
+    corr_threshold: float = _CORR_THRESHOLD,
+    variance_threshold_ratio: float = _VARIANCE_THRESHOLD_RATIO,
+) -> tuple[list[str], pd.DataFrame]:
+    """Return (selected_feature_names, reduced_df) after dropping collinear and near-zero-variance features."""
+    numeric_df = df.select_dtypes(include="number")
+    candidates = numeric_df.columns.tolist()
+
+    dropped_corr: dict[str, str] = {}
+    dropped_var: dict[str, float] = {}
+
+    # --- Pass 1: collinearity ---
+    # Walk the upper triangle of the correlation matrix. When two features exceed
+    # the threshold, drop the second one (later column) and keep the first. This
+    # preserves the feature that appeared earlier, which for this dataset means
+    # original columns are preferred over engineered ones.
+    corr_matrix = numeric_df.corr().abs()
+    keep = list(candidates)
+    for i, col_a in enumerate(candidates):
+        if col_a not in keep:
+            continue
+        for col_b in candidates[i + 1:]:
+            if col_b not in keep:
+                continue
+            if corr_matrix.loc[col_a, col_b] > corr_threshold:
+                keep.remove(col_b)
+                dropped_corr[col_b] = col_a
+                logger.info(
+                    "Dropped '%s' (corr=%.3f with '%s' > threshold %.2f)",
+                    col_b, corr_matrix.loc[col_a, col_b], col_a, corr_threshold,
+                )
+
+    # --- Pass 2: near-zero variance ---
+    # A feature whose variance is a tiny fraction of the dataset's overall numeric
+    # spread carries almost no discriminating information. The threshold is relative
+    # so it scales automatically when features are on different units.
+    variances = numeric_df[keep].var()
+    # Use median rather than mean so that one high-scale feature (e.g. TotalCharges
+    # with variance ~400k) cannot inflate the cutoff and incorrectly kill lower-scale
+    # but perfectly meaningful features like tenure or MonthlyCharges.
+    overall_variance = variances.median()
+    variance_cutoff = variance_threshold_ratio * overall_variance
+    low_var_cols = variances[variances < variance_cutoff].index.tolist()
+    for col in low_var_cols:
+        keep.remove(col)
+        dropped_var[col] = float(variances[col])
+        logger.info(
+            "Dropped '%s' (variance=%.6f < cutoff %.6f)",
+            col, variances[col], variance_cutoff,
+        )
+
+    # Rebuild df with non-numeric columns + surviving numeric columns, preserving
+    # original column order as closely as possible.
+    non_numeric_cols = [c for c in df.columns if c not in numeric_df.columns]
+    selected = [c for c in df.columns if c in non_numeric_cols or c in keep]
+
+    logger.info(
+        "Feature selection complete — kept %d / %d numeric features "
+        "(%d dropped for collinearity, %d for low variance)",
+        len(keep), len(candidates), len(dropped_corr), len(dropped_var),
+    )
+
+    return keep, df[selected]
+
+
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
+
     raw_df = load_data(DATA_DIR / "Telco-Customer-Churn.csv")
     cleaned_df, _ = clean_data(raw_df, target_column="Churn")
 
@@ -123,5 +198,11 @@ if __name__ == "__main__":
     print("\nNew features:")
     for col in new_feature_cols:
         print(f"  {col}")
-    print("\nSample (first 3 rows, new features only):")
-    print(featured_df[new_feature_cols].head(3).to_string())
+
+    print("\n--- Feature Selection ---")
+    selected_cols, reduced_df = select_features(featured_df)
+    dropped = [c for c in featured_df.select_dtypes(include="number").columns if c not in selected_cols]
+    print(f"Numeric features before : {featured_df.select_dtypes(include='number').shape[1]}")
+    print(f"Numeric features after  : {len(selected_cols)}")
+    print(f"Dropped ({len(dropped)})            : {dropped}")
+    print(f"Reduced dataframe shape : {reduced_df.shape}")
