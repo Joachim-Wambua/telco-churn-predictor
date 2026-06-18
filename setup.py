@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="credit-card-fraud-detection",
+    name="telco-customer-churn",
     version="0.1.0",
     packages=find_packages(include=["src", "src.*"]),
 )

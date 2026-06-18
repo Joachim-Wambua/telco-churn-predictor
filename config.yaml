@@ -1,0 +1,18 @@
+project_name: "telco-customer-churn"
+problem_type: "binary_classification"
+
+data:
+  source_file: "data/Telco-Customer-Churn.csv"
+  target_col: "Churn"
+  positive_class: "Yes"           # minority class — the one we care about
+  class_imbalance_ratio: 0.265    # ~26.5% positive rate
+
+evaluation:
+  primary_metric: "roc_auc"
+  primary_metric_target: 0.80
+  secondary_metrics:
+    - "f1"
+    - "precision"
+    - "recall"
+  imbalance_strategy: "class_weight"   # preferred over smote at 26.5% imbalance
+  decision_threshold: 0.5              # tune toward 0.3–0.4 if recall is priority

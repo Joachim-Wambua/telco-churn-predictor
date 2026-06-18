@@ -1,11 +1,28 @@
-# Credit Card Fraud Detection
+# Telco Customer Churn — Binary Classification
 
-A machine learning project for detecting customer churn using the Telco Customer Churn dataset.
+Predicting whether a telecom customer will churn (leave the service) based on account
+features such as contract type, tenure, and monthly charges.
 
 ## Dataset
 
-- **Source:** `data/Telco-Customer-Churn.csv`
-- **Task:** Binary classification (`Churn`: Yes / No)
+- **Source:** IBM Telco Customer Churn dataset (Kaggle) — `data/Telco-Customer-Churn.csv`
+- **Task:** Binary classification — target column: `Churn` (Yes / No)
+- **Size:** 7,043 customers × 21 features
+
+## Metrics
+
+Do not use accuracy as a primary metric — a majority-class baseline already reaches ~73.5%.
+
+| Metric | Target | Notes |
+|---|---|---|
+| ROC-AUC | > 0.80 | Primary metric |
+| F1-score | — | On minority class (`Churn=Yes`) |
+| Precision | — | On minority class (`Churn=Yes`) |
+| Recall | — | On minority class (`Churn=Yes`) |
+
+**Class imbalance:** ~73.5% No / ~26.5% Yes — moderate imbalance.
+Preferred handling: `class_weight='balanced'` or threshold tuning (try 0.3–0.4).
+SMOTE is not the default approach at this imbalance ratio.
 
 ## Exploratory Data Analysis
 
