@@ -11,6 +11,8 @@ A 4-page portfolio app showcasing an end-to-end churn prediction pipeline:
 Run: streamlit run app/streamlit_app.py
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from pathlib import Path

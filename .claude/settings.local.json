@@ -9,7 +9,12 @@
       "Bash(python app/generate_data.py)",
       "Bash(streamlit run *)",
       "Bash(start cmd *)",
-      "PowerShell(Get-Content *)"
+      "PowerShell(Get-Content *)",
+      "Bash(docker compose *)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(pip install *)",
+      "PowerShell(winget install *)",
+      "Bash(git remote *)"
     ]
   }
 }
