@@ -24,17 +24,17 @@
 
 ### The Problem
 
-Telecom companies spend significantly more acquiring new customers than retaining existing ones, yet they have limited ability to intervene before a customer cancels. The challenge is identifying which customers are at risk of churning *before* they leave — early enough that a retention offer can still work.
+Telecommunication companies spend significantly more acquiring new customers than retaining existing ones, yet they have limited ability to intervene before a customer cancels their subscription. The challenge is identifying which customers are at risk of churning(leaving) *before* they leave, early enough that a retention offer can still work.
 
 ### End User
 
-This system is built for a **Telecom Retention team**: customer success managers who run outreach campaigns, and data analysts who monitor churn risk at the portfolio level. The model surfaces high-risk customers so the team can prioritise who to call, what to offer, and when.
+This system is built for a **Telecommunications Customer Retention team**: customer success managers who run outreach campaigns, and data analysts who monitor churn risk. The model surfaces high-risk customers so the team can prioritise who to call, what to offer, and when.
 
 ### The Data
 
 **IBM Telco Customer Churn dataset** (publicly available on Kaggle):
 - **7,043 rows**, 21 raw columns
-- Binary target: `Churn` (Yes = 26.5%, No = 73.5%)
+- Binary target: `Churn` (Yes = 26.5%, No = 73.5%) i.e Class Imbalance is present though not extreme 
 - Features span customer demographics, account info (contract type, payment method, tenure), and subscribed services (phone, internet, security add-ons, streaming)
 - 11 rows dropped during cleaning: customers with `tenure=0` had blank-string `TotalCharges` that couldn't be coerced to numeric — a data entry artifact, not meaningful missing data
 
