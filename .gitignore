@@ -1,7 +1,11 @@
 data/
-models/
+models/*
+!models/production_model.pkl
+!models/best_params.json
 .env
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
 *.egg-info/
+mlruns/
+mlflow.db
