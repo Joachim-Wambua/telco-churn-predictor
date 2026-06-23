@@ -2,7 +2,7 @@
 
 > End-to-end ML pipeline predicting telecom customer churn with XGBoost, Optuna tuning, and MLflow tracking — deployed as an interactive Streamlit portfolio app.
 
-**Live Demo:** [To Be Added](https://your-app.streamlit.app)
+**Live Demo:** [To Be Added](https://teleco-churn-predictor.streamlit.app/)
 
 ---
 

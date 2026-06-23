@@ -14,7 +14,8 @@
       "Bash(python -m pytest tests/ -v)",
       "Bash(pip install *)",
       "PowerShell(winget install *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
